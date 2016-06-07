@@ -13,7 +13,31 @@ This does however add the caveat that you loose all data more than a week old.
 Ideally you should use instance-profiles for controlling permissions.
 But if you need to use environment variables, you can use the standard AWS ones.
 
-     docker run -t -e AWS_SECRET_ACCESS_KEY=xxx -e AWS_ACCESS_KEY_ID=xxx -e AWS_DEFAULT_REGION=xxx -e BUCKET=my-bucket -e DB_INSTANCE_IDENTIFIER=my-rds-postgres canopytax/pgbadger-rds-cron 
+     docker run -t -e AWS_SECRET_ACCESS_KEY=xxx -e AWS_ACCESS_KEY_ID=xxx -e AWS_DEFAULT_REGION=xxx -e BUCKET=my-bucket -e DB_INSTANCE_IDENTIFIER=my-rds-postgres canopytax/pgbadger-rds-cron
+      
+ # IAM Permissions
+ 
+ Your AIM User/Instance Profile will need the following access in IAM. 
+ 
+ ```
+ {
+     "Version": "2012-10-17",
+     "Statement": [
+         {
+             "Sid": "Stmt1465312344000",
+             "Effect": "Allow",
+             "Action": [
+                 "rds:DescribeDBLogFiles",
+                 "rds:DownloadDBLogFilePortion"
+             ],
+             "Resource": [
+                 "arn:aws:rds:{region}:{accountID}:db:{dbName}"
+             ]
+         }
+     ]
+ }
+ ```
+ 
 
 ## Setting up RDS
 
