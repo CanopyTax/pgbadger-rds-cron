@@ -1,0 +1,7 @@
+.dockerignore
+Dockerfile
+.git
+.gitignore
+.idea
+README.md
+out.html
