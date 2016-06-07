@@ -1,6 +1,5 @@
 # pgbadger-rds-cron
 
-
 This container pulls logs from rds and parses them with pgbadger.
 The resulting html file is uploaded to s3. 
 The file is replaced everytime as if the page was keeping itself up-to-date.
@@ -15,7 +14,7 @@ But if you need to use environment variables, you can use the standard AWS ones.
 
      docker run -t -e AWS_SECRET_ACCESS_KEY=xxx -e AWS_ACCESS_KEY_ID=xxx -e AWS_DEFAULT_REGION=xxx -e BUCKET=my-bucket -e DB_INSTANCE_IDENTIFIER=my-rds-postgres canopytax/pgbadger-rds-cron
       
- # IAM Permissions
+## IAM Permissions
  
  Your AIM User/Instance Profile will need the following access in IAM. 
  
