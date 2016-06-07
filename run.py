@@ -6,6 +6,7 @@ import os
 import subprocess
 import psutil
 import boto3
+
 from datetime import datetime
 from operator import itemgetter
 
@@ -17,8 +18,7 @@ def raiser(e):
     raise e
 
 
-def download_log_files():
-    db_name = os.getenv('DB_NAME') or raiser(ValueError('DB_NAME is required'))
+def download_log_files(db_name):
     rds = boto3.client('rds')
     files = rds.describe_db_log_files(DBInstanceIdentifier=db_name)
 
@@ -33,7 +33,10 @@ def download_log_files():
 
     # Download
     for name in files:
+        print('Downloading {} ...'.format(name))
         download_log(name, db_name)
+
+    print('Downloads complete')
 
     return files
 
@@ -63,15 +66,25 @@ def run_pgbadger(file_list):
     )
 
 
-def upload_to_s3():
-    pass
+def upload_to_s3(bucket, key):
+    s3 = boto3.resource('s3')
+    s3.Object(bucket, key).put(
+        Body=open('out.html', 'rb'),
+        ContentType='html',
+        ACL='public-read'
+        )
 
 
 def run():
+    db_name = os.getenv('DB_NAME') or \
+              raiser(ValueError('DB_NAME is required'))
+    bucket = os.getenv('S3_BUCKET') or \
+             raiser(ValueError('S3_BUCKET is required'))
+    key = os.getenv('S3_KEY', 'pgbadger.html')
     try:
-        files = download_log_files()
+        files = download_log_files(db_name)
         run_pgbadger(files)
-        upload_to_s3()
+        upload_to_s3(bucket, key)
     except Exception as e:
         raise
 

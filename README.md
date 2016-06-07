@@ -32,6 +32,15 @@ But if you need to use environment variables, you can use the standard AWS ones.
              "Resource": [
                  "arn:aws:rds:{region}:{accountID}:db:{dbName}"
              ]
+         },
+         {
+             "Sid": "s3statement",
+             "Effect": "Allow",
+             "Action": [
+                 "s3:PutObject",
+                 "s3:PutObjectAcl"
+             ],
+             "Resource": "arn:aws:s3:::{s3Bucket}/*"
          }
      ]
  }
