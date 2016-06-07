@@ -48,6 +48,8 @@ Here is a screenshot of the options set to make things work.
 
 ![image](/parameters.png?raw=true "RDS Parameters")
 
+You can adjust `log_min_duration_statement` to your liking. If you would like to log every query, set it to 0. If you would instead like to log only longer queries, adjust it higher. The time is in milliseconds.
+
 ### CLI
  
 If you want to use the CLI, you can use this command (modify for each option):
