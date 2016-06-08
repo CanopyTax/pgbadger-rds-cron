@@ -12,7 +12,7 @@ This does however add the caveat that you loose all data more than a week old.
 Ideally you should use instance-profiles for controlling permissions.
 But if you need to use environment variables, you can use the standard AWS ones.
 
-     docker run -t -e AWS_SECRET_ACCESS_KEY=xxx -e AWS_ACCESS_KEY_ID=xxx -e AWS_DEFAULT_REGION=xxx -e BUCKET=my-bucket -e DB_INSTANCE_IDENTIFIER=my-rds-postgres canopytax/pgbadger-rds-cron
+     docker run -t -e AWS_SECRET_ACCESS_KEY=xxx -e AWS_ACCESS_KEY_ID=xxx -e AWS_DEFAULT_REGION=xxx -e BUCKET=my-bucket -e DB_NAME=my-rds-postgres canopytax/pgbadger-rds-cron
       
 ## IAM Permissions
  
@@ -87,4 +87,4 @@ If you would like to run your job every day at 6:00pm (server time) you would se
 
 Example:
 
-    docker run -t  -e INTERVAL=15 -e UNIT=minutes -e BUCKET=my-bucket -e DB_INSTANCE_IDENTIFIER=my-rds-postgres canopytax/pgbadger-rds-cron
+    docker run -t  -e INTERVAL=15 -e UNIT=minutes -e BUCKET=my-bucket -e DB_NAME=my-rds-postgres canopytax/pgbadger-rds-cron
