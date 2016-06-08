@@ -32,9 +32,12 @@ def download_log_files(db_name):
     files = files[:7]
 
     # Download
-    for name in files:
-        print('Downloading {} ...'.format(name))
-        download_log(name, db_name)
+    for i, name in enumerate(files):
+        if i < 2 or not os.path.isfile('logs/' + name):
+            # we dont need to download the file if it already exists
+            # we always download the first two because there could be updates
+            print('Downloading {} ...'.format(name))
+            download_log(name, db_name)
 
     print('Downloads complete')
 
