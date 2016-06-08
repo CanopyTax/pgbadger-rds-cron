@@ -4,4 +4,4 @@ FROM canopytax/python-base
 RUN apk add --update perl && \
     rm /var/cache/apk/*
 
-CMD ["run.py"]
+CMD ["./run.py"]
