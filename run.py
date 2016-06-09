@@ -20,7 +20,6 @@ def raiser(e):
 
 
 def download_log_files(db_name):
-    rds = boto3.client('rds')
     files = rds.describe_db_log_files(DBInstanceIdentifier=db_name)
 
     # Sort based on touched time - ignore postgres.log
