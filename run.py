@@ -12,7 +12,7 @@ from datetime import datetime
 from operator import itemgetter
 
 
-rds = boto3.client('rds')
+rds = boto3.client('rds', os.getenv('REGION', 'us-west-2'))
 
 
 def raiser(e):
@@ -70,8 +70,8 @@ def run_pgbadger(file_list):
     )
 
 
-def upload_to_s3(bucket, key):
-    s3 = boto3.resource('s3')
+def upload_to_s3(bucket, key, region):
+    s3 = boto3.resource('s3', region_name=region)
     s3.Object(bucket, key).put(
         Body=open('out.html', 'rb'),
         ContentType='html',
@@ -89,7 +89,7 @@ def run():
     try:
         files = download_log_files(db_name)
         run_pgbadger(files)
-        upload_to_s3(bucket, key)
+        upload_to_s3(bucket, key, region)
     except Exception as e:
         traceback.print_exc()
 
