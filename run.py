@@ -12,7 +12,7 @@ from datetime import datetime
 from operator import itemgetter
 
 
-rds = boto3.client('rds', os.getenv('REGION', 'us-west-2'))
+rds = boto3.client('rds', region=os.getenv('REGION', 'us-west-2'))
 
 
 def raiser(e):
