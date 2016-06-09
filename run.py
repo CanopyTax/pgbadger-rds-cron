@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import traceback
 
 import schedule
 import time
@@ -83,13 +84,14 @@ def run():
               raiser(ValueError('DB_NAME is required'))
     bucket = os.getenv('S3_BUCKET') or \
              raiser(ValueError('S3_BUCKET is required'))
+    region = os.getenv('REGION', 'us-west-2')
     key = os.getenv('S3_KEY', 'pgbadger.html')
     try:
         files = download_log_files(db_name)
         run_pgbadger(files)
         upload_to_s3(bucket, key)
     except Exception as e:
-        raise
+        traceback.print_exc()
 
 
 def build_schedule():
