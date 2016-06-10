@@ -40,6 +40,15 @@ def download_log_files(db_name):
             download_log(name, db_name)
 
     print('Downloads complete')
+    # Delete old files
+    for d in os.listdir('logs/'):
+        if os.path.isdir('./logs/' + d):
+            for f in os.listdir('logs/' + d):
+                if d + '/' + f not in files:
+                    os.remove('logs/' + d + '/' + f)
+        if os.path.isfile('logs/' + d):
+            if d not in files:
+                os.remove('logs/' + d)
 
     return files
 
