@@ -7,12 +7,15 @@ import os
 import subprocess
 import psutil
 import boto3
+import pickle
 
 from datetime import datetime
 from operator import itemgetter
 
 
 rds = boto3.client('rds', region_name=os.getenv('REGION', 'us-west-2'))
+
+log_state = dict()
 
 
 def raiser(e):
@@ -29,15 +32,12 @@ def download_log_files(db_name):
              if n.get('LogFileName') != 'error/postgres.log']
 
     # Get a weeks worth of files
-    files = files[:7]
+    files = files[:3]
 
     # Download
-    for i, name in enumerate(files):
-        if i < 2 or not os.path.isfile('logs/' + name):
-            # we dont need to download the file if it already exists
-            # we always download the first two because there could be updates
-            print('Downloading {} ...'.format(name))
-            download_log(name, db_name)
+    for name in files:
+        print('Downloading {} ...'.format(name))
+        download_log(name, db_name)
 
     print('Downloads complete')
     # Delete old files
@@ -53,19 +53,31 @@ def download_log_files(db_name):
     return files
 
 
-def download_log(log_name, db_name, marker='0'):
-    result = rds.download_db_log_file_portion(
-        DBInstanceIdentifier=db_name,
-        Marker=marker,
-        LogFileName=log_name
-    )
+def download_log(log_name, db_name):
+    marker = log_state.get(log_name, '0')
     mode = 'ab'
     if marker == '0':
         mode = 'wb'
     with open('logs/' + log_name, mode) as f:
-        f.write(result.get('LogFileData').encode())
-    if result.get('AdditionalDataPending'):
-        download_log(log_name, db_name, marker=result.get('Marker'))
+        try:
+            while True:
+                result = rds.download_db_log_file_portion(
+                    DBInstanceIdentifier=db_name,
+                    Marker=marker,
+                    LogFileName=log_name,
+                    NumberOfLines=99999999
+                )
+                # For debugging
+                if not result.get('AdditionalDataPending'):
+                    print('no data pending, marker:{}'
+                          .format(result.get('Marker')))
+                if marker == result.get('Marker'):  # no more data
+                    marker = result.get('Marker')
+                    return
+                f.write(result.get('LogFileData').encode())
+                marker = result.get('Marker')
+        finally:
+            log_state[log_name] = marker
 
 
 def run_pgbadger(file_list):
@@ -73,8 +85,25 @@ def run_pgbadger(file_list):
     subprocess.check_call([
         './pgbadger',
         '-j', str(psutil.cpu_count()),
+        '-X',
+        '-I',
+        '-O', os.getcwd() + '/pg_reports',
         '-p', '%t:%r:%u@%d:[%p]:'
         ] + file_list
+    )
+
+
+def sync_s3(bucket, key, upload=False):
+    local_path = os.getcwd() + '/pg_reports'
+    s3_path = 's3://' + bucket + '/' + key
+    sync_path = [s3_path, local_path]
+    if upload:
+        sync_path = sync_path[::-1]
+    subprocess.check_call([
+        '/home/nhumrich/.awsenv/bin/aws',
+        's3',
+        'sync',
+        ] + sync_path
     )
 
 
@@ -87,19 +116,38 @@ def upload_to_s3(bucket, key, region):
         )
 
 
+def get_log_states():
+    global log_state
+    try:
+        with open('logs/status.p', 'rb') as p:
+            log_state = pickle.load(p)
+    except FileNotFoundError:
+        log_state = dict()
+
+
+def save_log_states():
+    with open('logs/status.p', 'wb') as p:
+        pickle.dump(log_state, p)
+
+
 def run():
+    get_log_states()
     db_name = os.getenv('DB_NAME') or \
               raiser(ValueError('DB_NAME is required'))
     bucket = os.getenv('S3_BUCKET') or \
              raiser(ValueError('S3_BUCKET is required'))
     region = os.getenv('REGION', 'us-west-2')
-    key = os.getenv('S3_KEY', 'pgbadger.html')
+    key = os.getenv('S3_KEY', 'pgbadger/')
     try:
         files = download_log_files(db_name)
+        sync_s3(bucket, key)
         run_pgbadger(files)
-        upload_to_s3(bucket, key, region)
+        sync_s3(bucket, key, upload=True)
+        # upload_to_s3(bucket, key, region)
     except Exception as e:
         traceback.print_exc()
+    finally:
+        save_log_states()
 
 
 def build_schedule():

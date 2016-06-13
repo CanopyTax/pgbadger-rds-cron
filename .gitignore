@@ -1,5 +1,6 @@
 # Project specific
 logs/
+pg_reports/
 out.html
 
 
