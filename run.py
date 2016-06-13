@@ -32,7 +32,7 @@ def download_log_files(db_name):
              if n.get('LogFileName') != 'error/postgres.log']
 
     # Get a weeks worth of files
-    files = files[:3]
+    files = files[:7]
 
     # Download
     for name in files:
