@@ -68,9 +68,9 @@ def download_log(log_name, db_name):
                     NumberOfLines=99999999
                 )
                 # For debugging
-                if not result.get('AdditionalDataPending'):
-                    print('no data pending, marker:{}'
-                          .format(result.get('Marker')))
+                # if not result.get('AdditionalDataPending'):
+                #     print('no data pending, marker:{}'
+                #           .format(result.get('Marker')))
                 if marker == result.get('Marker'):  # no more data
                     marker = result.get('Marker')
                     return
