@@ -100,7 +100,7 @@ def sync_s3(bucket, key, upload=False):
     if upload:
         sync_path = sync_path[::-1]
     subprocess.check_call([
-        '/home/nhumrich/.awsenv/bin/aws',
+        'aws',
         's3',
         'sync',
         ] + sync_path
