@@ -81,7 +81,7 @@ The environment variables needed are:
     UNIT: Unit of time (Optional, default=day)
     TIME: Specific time of each day to run (Optional, used instead of INTERVAL and UNIT)
     
-For example, if you want to update every 15 minutes, you would set `INTERVAL=5` and `UNIT=minutes`.
+For example, if you want to update every 15 minutes, you would set `INTERVAL=15` and `UNIT=minutes`.
 If you would like to run your job every day at 6:00pm (server time) you would set `TIME=18:00`.
 
 
