@@ -16,36 +16,48 @@ But if you need to use environment variables, you can use the standard AWS ones.
       
 ## IAM Permissions
  
- Your AIM User/Instance Profile will need the following access in IAM. 
- 
- ```
- {
-     "Version": "2012-10-17",
-     "Statement": [
-         {
-             "Sid": "Stmt1465312344000",
-             "Effect": "Allow",
-             "Action": [
-                 "rds:DescribeDBLogFiles",
-                 "rds:DownloadDBLogFilePortion"
-             ],
-             "Resource": [
-                 "arn:aws:rds:{region}:{accountID}:db:{dbName}"
-             ]
-         },
-         {
-             "Sid": "s3statement",
-             "Effect": "Allow",
-             "Action": [
-                 "s3:PutObject",
-                 "s3:PutObjectAcl"
-             ],
-             "Resource": "arn:aws:s3:::{s3Bucket}/*"
-         }
-     ]
- }
- ```
- 
+Your AIM User/Instance Profile will need the following access in IAM. 
+
+```
+{
+   "Version": "2012-10-17",
+   "Statement": [
+       {
+           "Sid": "Stmt1465312344000",
+           "Effect": "Allow",
+           "Action": [
+               "rds:DescribeDBLogFiles",
+               "rds:DownloadDBLogFilePortion"
+           ],
+           "Resource": [
+               "arn:aws:rds:{region}:{accountID}:db:{dbName}"
+           ]
+       },
+       {
+           "Effect": "Allow",
+           "Action": [
+               "s3:ListAllMyBuckets"
+           ],
+           "Resource": [
+               "arn:aws:s3:::*"
+           ]
+       },
+       {
+           "Sid": "s3statement",
+           "Effect": "Allow",
+           "Action": [
+               "s3:ListBucket",
+               "s3:PutObject",
+               "s3:PutObjectAcl"
+           ],
+           "Resource": [
+               "arn:aws:s3:::{s3Bucket}"
+               "arn:aws:s3:::{s3Bucket}/*"
+           ]
+       }
+   ]
+}
+``` 
 
 ## Setting up RDS
 
