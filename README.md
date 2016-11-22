@@ -12,40 +12,54 @@ This does however add the caveat that you loose all data more than a week old.
 Ideally you should use instance-profiles for controlling permissions.
 But if you need to use environment variables, you can use the standard AWS ones.
 
-     docker run -t -e AWS_SECRET_ACCESS_KEY=xxx -e AWS_ACCESS_KEY_ID=xxx -e AWS_DEFAULT_REGION=xxx -e S3_BUCKET=my-bucket -e DB_NAME=my-rds-postgres canopytax/pgbadger-rds-cron
+     docker run -t -e AWS_SECRET_ACCESS_KEY=xxx -e AWS_ACCESS_KEY_ID=xxx -e REGION=xxx -e S3_BUCKET=my-bucket -e DB_NAME=my-rds-postgres canopytax/pgbadger-rds-cron
       
+`REGION` must be set to properly locate the rds instance. By default it's `us-west-2`.
+
 ## IAM Permissions
  
- Your AIM User/Instance Profile will need the following access in IAM. 
- 
- ```
- {
-     "Version": "2012-10-17",
-     "Statement": [
-         {
-             "Sid": "Stmt1465312344000",
-             "Effect": "Allow",
-             "Action": [
-                 "rds:DescribeDBLogFiles",
-                 "rds:DownloadDBLogFilePortion"
-             ],
-             "Resource": [
-                 "arn:aws:rds:{region}:{accountID}:db:{dbName}"
-             ]
-         },
-         {
-             "Sid": "s3statement",
-             "Effect": "Allow",
-             "Action": [
-                 "s3:PutObject",
-                 "s3:PutObjectAcl"
-             ],
-             "Resource": "arn:aws:s3:::{s3Bucket}/*"
-         }
-     ]
- }
- ```
- 
+Your AIM User/Instance Profile will need the following access in IAM. 
+
+```
+{
+   "Version": "2012-10-17",
+   "Statement": [
+       {
+           "Sid": "Stmt1465312344000",
+           "Effect": "Allow",
+           "Action": [
+               "rds:DescribeDBLogFiles",
+               "rds:DownloadDBLogFilePortion"
+           ],
+           "Resource": [
+               "arn:aws:rds:{region}:{accountID}:db:{dbName}"
+           ]
+       },
+       {
+           "Effect": "Allow",
+           "Action": [
+               "s3:ListAllMyBuckets"
+           ],
+           "Resource": [
+               "arn:aws:s3:::*"
+           ]
+       },
+       {
+           "Sid": "s3statement",
+           "Effect": "Allow",
+           "Action": [
+               "s3:ListBucket",
+               "s3:PutObject",
+               "s3:PutObjectAcl"
+           ],
+           "Resource": [
+               "arn:aws:s3:::{s3Bucket}"
+               "arn:aws:s3:::{s3Bucket}/*"
+           ]
+       }
+   ]
+}
+``` 
 
 ## Setting up RDS
 
